@@ -11,7 +11,7 @@ Mod para **Minecraft 26.3 (Fabric)** inspirado en la serie *Minecraft Extremo* d
 ## Qué pasa cuando alguien muere
 
 1. **Suena el audio de muerte** a todos los jugadores, sale en pantalla **"☠ NOMBRE ☠ — ha muerto"** y se suma 1 a sus muertes en el panel.
-2. Empieza una cuenta atrás (22 segundos por defecto, lo que dura el audio).
+2. Empieza una cuenta atrás (16 segundos por defecto, lo que dura el audio).
 3. Se expulsa a todos con el mensaje *"Generando el mundo #N con una seed nueva..."*.
 4. El servidor borra el mundo y crea uno nuevo con otra seed. Tarda solo unos segundos.
 5. Vuelve a entrar: estás en un mundo nuevo, con el inventario vacío y el panel actualizado.
@@ -62,7 +62,7 @@ Se crea sola en `config/extremo/config.json`. En `sonidoMuerte` también puedes 
 ```json
 {
   "reinicioActivado": true,
-  "segundosCuentaAtras": 22,
+  "segundosCuentaAtras": 16,
   "sonidoMuerte": "extremo:muerte",
   "volumenSonidoMuerte": 1.0,
   "enviarPaqueteRecursos": true,
