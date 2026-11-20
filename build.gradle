@@ -14,9 +14,27 @@ dependencies {
 	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 }
 
+// Paquete de recursos (sonido de muerte). Se genera de forma reproducible para que su
+// SHA-1 no cambie entre compilaciones, se mete dentro del mod y se copia a descargas/.
+def paqueteRecursos = tasks.register("paqueteRecursos", Zip) {
+	from "paquete-recursos"
+	archiveFileName = "extremo-recursos.zip"
+	destinationDirectory = layout.buildDirectory.dir("paquete-recursos")
+	preserveFileTimestamps = false
+	reproducibleFileOrder = true
+}
+
+tasks.register("copiarDescargas", Copy) {
+	from tasks.named("jar")
+	from paqueteRecursos
+	into "descargas"
+}
+
 processResources {
 	def version = project.version
 	inputs.property "version", version
+
+	from(paqueteRecursos)
 
 	filesMatching("fabric.mod.json") {
 		expand "version": version

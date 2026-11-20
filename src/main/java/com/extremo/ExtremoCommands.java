@@ -69,9 +69,9 @@ public final class ExtremoCommands {
 			.append(line("Mundo actual", "#" + data.numeroMundo))
 			.append(line("Muertes totales", String.valueOf(data.totalMuertes)))
 			.append(line("Reinicio al morir", config.reinicioActivado ? "activado" : "DESACTIVADO"))
-			.append(line("Cuenta atras", config.segundosCuentaAtras + " s"));
+			.append(line("Cuenta atrás", config.segundosCuentaAtras + " s"));
 		if (!data.ultimaMuerte.isEmpty()) {
-			text.append(line("Ultima muerte", data.ultimaMuerte));
+			text.append(line("Última muerte", data.ultimaMuerte));
 		}
 
 		if (Commands.LEVEL_GAMEMASTERS.check(source.permissions())) {
@@ -81,7 +81,7 @@ public final class ExtremoCommands {
 		text.append(Component.literal("\nMuertes por jugador:").withStyle(ChatFormatting.GOLD));
 		List<ExtremoData.Participante> ranking = data.ranking();
 		if (ranking.isEmpty()) {
-			text.append(Component.literal("\n  (todavia nadie)").withStyle(ChatFormatting.GRAY));
+			text.append(Component.literal("\n  (todavía nadie)").withStyle(ChatFormatting.GRAY));
 		}
 
 		int position = 1;
@@ -121,7 +121,7 @@ public final class ExtremoCommands {
 
 	private static int cancel(CommandSourceStack source) {
 		if (!WorldResetter.cancel(source.getServer())) {
-			source.sendFailure(Component.literal("No hay ninguna cuenta atras que cancelar."));
+			source.sendFailure(Component.literal("No hay ninguna cuenta atrás que cancelar."));
 			return 0;
 		}
 
@@ -143,7 +143,7 @@ public final class ExtremoCommands {
 		ExtremoConfig.get().segundosCuentaAtras = seconds;
 		ExtremoConfig.save();
 		source.sendSuccess(() -> WorldResetter.prefix()
-			.append(Component.literal("Cuenta atras establecida en " + seconds + " segundos.").withStyle(ChatFormatting.YELLOW)), true);
+			.append(Component.literal("Cuenta atrás establecida en " + seconds + " segundos.").withStyle(ChatFormatting.YELLOW)), true);
 		return 1;
 	}
 
@@ -151,7 +151,7 @@ public final class ExtremoCommands {
 		ExtremoData data = ExtremoData.get();
 		ExtremoData.Participante participante = data.findByName(name);
 		if (participante == null) {
-			source.sendFailure(Component.literal("No hay ningun participante llamado " + name + " (tiene que haber entrado al servidor al menos una vez)."));
+			source.sendFailure(Component.literal("No hay ningún participante llamado " + name + " (tiene que haber entrado al servidor al menos una vez)."));
 			return 0;
 		}
 
@@ -173,7 +173,7 @@ public final class ExtremoCommands {
 		ExtremoData.save();
 		DeathPanel.refresh(source.getServer());
 		source.sendSuccess(() -> WorldResetter.prefix()
-			.append(Component.literal("Estadisticas borradas: todas las muertes a 0 y contador de mundos a #1.").withStyle(ChatFormatting.YELLOW)), true);
+			.append(Component.literal("Estadísticas borradas: todas las muertes a 0 y contador de mundos a #1.").withStyle(ChatFormatting.YELLOW)), true);
 		return 1;
 	}
 }

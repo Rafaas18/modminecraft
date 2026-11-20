@@ -16,11 +16,31 @@ import net.fabricmc.loader.api.FabricLoader;
  */
 public final class ExtremoConfig {
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
+	public static final String DEFAULT_PACK_URL =
+		"https://raw.githubusercontent.com/Rafaas18/modminecraft/main/descargas/extremo-recursos.zip";
 
 	/** Si es false, las muertes se cuentan pero el mundo NO se reinicia. */
 	public boolean reinicioActivado = true;
-	/** Segundos que pasan desde la muerte hasta que se reinicia el mundo. */
-	public int segundosCuentaAtras = 10;
+	/**
+	 * Segundos que pasan desde la muerte hasta que se reinicia el mundo. Por defecto 22 para que
+	 * el audio de muerte (21,5 s) se escuche entero antes de expulsar a todos.
+	 */
+	public int segundosCuentaAtras = 22;
+	/** Sonido que suena a todos cuando alguien muere ("extremo:muerte" = el audio personalizado). */
+	public String sonidoMuerte = "extremo:muerte";
+	/** Volumen del sonido de muerte (0.0 - 1.0). */
+	public float volumenSonidoMuerte = 1.0F;
+	/** Enviar automaticamente el paquete de recursos (con el audio) a cada jugador al entrar. */
+	public boolean enviarPaqueteRecursos = true;
+	/** Enlace de descarga directa del paquete de recursos. */
+	public String urlPaqueteRecursos = DEFAULT_PACK_URL;
+	/**
+	 * SHA-1 del paquete. Vacio = se calcula solo a partir del paquete que lleva el mod dentro
+	 * (solo vale si el enlace apunta a ese mismo archivo).
+	 */
+	public String sha1PaqueteRecursos = "";
+	/** Si es true, quien rechace el paquete de recursos no puede entrar. */
+	public boolean paqueteRecursosObligatorio = false;
 	/** Titulo del panel lateral. */
 	public String tituloPanel = "☠ MINECRAFT EXTREMO ☠";
 	/** Muestra la linea "Mundo #N" en el panel. */
@@ -67,6 +87,31 @@ public final class ExtremoConfig {
 
 		if (this.tituloPanel == null || this.tituloPanel.isBlank()) {
 			this.tituloPanel = "☠ MINECRAFT EXTREMO ☠";
+		}
+
+		if (this.sonidoMuerte == null || this.sonidoMuerte.isBlank()) {
+			this.sonidoMuerte = "extremo:muerte";
+		}
+
+		if (!(this.volumenSonidoMuerte >= 0.0F)) {
+			this.volumenSonidoMuerte = 1.0F;
+		} else if (this.volumenSonidoMuerte > 1.0F) {
+			this.volumenSonidoMuerte = 1.0F;
+		}
+
+		if (this.urlPaqueteRecursos == null) {
+			this.urlPaqueteRecursos = "";
+		}
+
+		this.urlPaqueteRecursos = this.urlPaqueteRecursos.trim();
+		if (this.sha1PaqueteRecursos == null) {
+			this.sha1PaqueteRecursos = "";
+		}
+
+		this.sha1PaqueteRecursos = this.sha1PaqueteRecursos.trim().toLowerCase(java.util.Locale.ROOT);
+		if (!this.sha1PaqueteRecursos.isEmpty() && !this.sha1PaqueteRecursos.matches("[0-9a-f]{40}")) {
+			ExtremoMod.LOGGER.warn("[Extremo] sha1PaqueteRecursos no es un SHA-1 valido (40 caracteres hexadecimales). Se ignora.");
+			this.sha1PaqueteRecursos = "";
 		}
 	}
 
