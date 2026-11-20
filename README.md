@@ -1,1 +1,79 @@
-# modminecraft
+# ☠ Minecraft Extremo
+
+Mod para **Minecraft 26.3 (Fabric)** inspirado en la serie *Minecraft Extremo* de Pereira7, Agustin51 y Auronplay:
+
+- **Si un jugador muere, el mundo entero se reinicia.** Todos son expulsados unos segundos y, al volver a entrar, aparecen en un mundo nuevo: inventarios, logros, Nether y End también se reinician.
+- **La seed nunca se repite.** Cada mundo usa una seed aleatoria nueva que no se ha usado antes. Las seeds usadas se guardan.
+- **Panel a la derecha con las muertes de cada participante**, el número de mundo y el total de muertes. Se mantiene entre reinicios.
+- **El servidor no se apaga.** El mundo se regenera "en caliente", así que funciona en hostings donde no puedes reiniciar el servidor a mano.
+- **Tus amigos no tienen que instalar nada.** El mod solo va en el servidor y el panel usa el marcador de Minecraft normal. Pueden entrar con Minecraft 26.3 sin mods.
+
+## Qué pasa cuando alguien muere
+
+1. Sale en pantalla **"☠ NOMBRE HA MUERTO ☠"** con sonido de Wither y se suma 1 a sus muertes en el panel.
+2. Empieza una cuenta atrás (10 segundos por defecto).
+3. Se expulsa a todos con el mensaje *"Generando el mundo #N con una seed nueva..."*.
+4. El servidor borra el mundo y crea uno nuevo con otra seed. Tarda solo unos segundos.
+5. Vuelve a entrar: estás en un mundo nuevo, con el inventario vacío y el panel actualizado.
+
+## Instalación en el servidor (hosting o tu PC)
+
+1. Crea un servidor **Fabric** para Minecraft **26.3** (en casi todos los hostings basta con elegir "Fabric" y la versión 26.3).
+2. Descarga estos dos archivos y ponlos en la carpeta `mods/` del servidor:
+   - **Minecraft Extremo**: [`descargas/minecraft-extremo-1.0.0+26.3.jar`](descargas/minecraft-extremo-1.0.0+26.3.jar)
+   - **Fabric API** para 26.3: <https://modrinth.com/mod/fabric-api/versions?g=26.3>
+3. Arranca el servidor. Listo.
+
+> **Ojo con Aternos:** Aternos solo permite instalar mods de su propio catálogo y no deja subir archivos `.jar` propios. Para este mod necesitas un hosting que te deje subir archivos a la carpeta `mods/` (por FTP o desde su gestor de archivos), o bien un servidor en tu PC.
+
+Para un servidor en tu propio PC, descarga el instalador de servidor desde <https://fabricmc.net/use/server/> (Minecraft 26.3), arráncalo una vez, acepta el `eula.txt` y pon los dos `.jar` en `mods/`.
+
+**Importante:** el reinicio del mundo solo funciona en un **servidor dedicado** (hosting o servidor Fabric). En un mundo de un jugador abierto a LAN, las muertes se cuentan pero el mundo no se reinicia.
+
+## Comandos
+
+| Comando | Quién | Qué hace |
+|---|---|---|
+| `/extremo` | todos | Muestra el mundo actual, el ranking de muertes y la configuración |
+| `/extremo reiniciar` | OP | Fuerza un reinicio del mundo (con cuenta atrás) |
+| `/extremo cancelar` | OP | Cancela la cuenta atrás de un reinicio |
+| `/extremo desactivar` / `activar` | OP | Desactiva o activa el reinicio al morir (las muertes se siguen contando) |
+| `/extremo cuentaatras <segundos>` | OP | Cambia los segundos de cuenta atrás (de 0 a 300) |
+| `/extremo muertes <jugador> <n>` | OP | Corrige las muertes de un jugador |
+| `/extremo borrarestadisticas` | OP | Pone todas las muertes a 0 y el contador de mundos a #1 |
+
+Para hacerte OP, escribe `op TuNombre` en la consola del servidor.
+
+## Configuración
+
+Se crea sola en `config/extremo/config.json`:
+
+```json
+{
+  "reinicioActivado": true,
+  "segundosCuentaAtras": 10,
+  "tituloPanel": "☠ MINECRAFT EXTREMO ☠",
+  "mostrarNumeroMundo": true,
+  "mostrarTotalMuertes": true
+}
+```
+
+Las muertes, el número de mundo y las seeds usadas se guardan en `config/extremo/datos.json`, fuera de la carpeta del mundo, para que no se borren con los reinicios.
+
+## Qué se reinicia y qué no
+
+| Se reinicia | Se mantiene |
+|---|---|
+| Overworld, Nether y End (seed nueva) | Muertes de cada jugador y número de mundo |
+| Inventario, vida, XP, ender chest, cama/spawn de cada jugador | Reglas del juego (`/gamerule`), whitelist, OPs, baneos |
+| Logros, estadísticas, dragón del End, hora y clima | `server.properties` y la configuración del mod |
+
+## Compilar el mod (solo si quieres modificarlo)
+
+Necesitas Java 25.
+
+```bash
+./gradlew build
+```
+
+El `.jar` queda en `build/libs/`. Cada vez que se sube un cambio a GitHub, una GitHub Action también compila el mod (pestaña *Actions* → artefacto `minecraft-extremo`).
