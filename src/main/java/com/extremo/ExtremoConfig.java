@@ -22,10 +22,10 @@ public final class ExtremoConfig {
 	/** Si es false, las muertes se cuentan pero el mundo NO se reinicia. */
 	public boolean reinicioActivado = true;
 	/**
-	 * Segundos que pasan desde la muerte hasta que se reinicia el mundo. Por defecto 22 para que
-	 * el audio de muerte (21,5 s) se escuche entero antes de expulsar a todos.
+	 * Segundos que pasan desde la muerte hasta que se reinicia el mundo. Por defecto 16 para que
+	 * el audio de muerte (15,5 s) se escuche entero antes de expulsar a todos.
 	 */
-	public int segundosCuentaAtras = 22;
+	public int segundosCuentaAtras = 16;
 	/** Sonido que suena a todos cuando alguien muere ("extremo:muerte" = el audio personalizado). */
 	public String sonidoMuerte = "extremo:muerte";
 	/** Volumen del sonido de muerte (0.0 - 1.0). */
