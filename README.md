@@ -4,7 +4,7 @@ Mod para **Minecraft 26.3 (Fabric)** inspirado en la serie *Minecraft Extremo* d
 
 - **Si un jugador muere, el mundo entero se reinicia.** Nadie es expulsado: todos aparecen directamente en un mundo nuevo, con el inventario, los logros, el Nether y el End también reiniciados.
 - **La seed nunca se repite.** Cada mundo usa una seed aleatoria nueva que no se ha usado antes. Las seeds usadas se guardan.
-- **Panel a la derecha con las muertes de cada participante**, el número de mundo y el total de muertes. Se mantiene entre reinicios.
+- **Panel a la derecha** con título en degradado, el número de mundo, el tiempo que lleva vivo el mundo (en directo), el récord, las muertes de cada participante (con un punto verde si está conectado) y el total. Se mantiene entre reinicios.
 - **El servidor no se apaga.** El mundo se regenera "en caliente", así que funciona en hostings donde no puedes reiniciar el servidor a mano.
 - **Tus amigos no tienen que instalar nada.** El mod solo va en el servidor y el panel usa el marcador de Minecraft normal. Pueden entrar con Minecraft 26.3 sin mods.
 
@@ -70,7 +70,11 @@ Se crea sola en `config/extremo/config.json`. En `sonidoMuerte` también puedes 
   "paqueteRecursosObligatorio": false,
   "tituloPanel": "☠ MINECRAFT EXTREMO ☠",
   "mostrarNumeroMundo": true,
-  "mostrarTotalMuertes": true
+  "mostrarTotalMuertes": true,
+  "mostrarTiempo": true,
+  "mostrarRecord": true,
+  "colorTitulo1": "#FF3B3B",
+  "colorTitulo2": "#FFB020"
 }
 ```
 
