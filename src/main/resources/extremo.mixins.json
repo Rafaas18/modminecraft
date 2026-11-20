@@ -5,6 +5,7 @@
 	"mixins": [
 		"MinecraftServerAccessor",
 		"MinecraftServerMixin",
+		"ServerGamePacketListenerImplAccessor",
 		"WorldGenSettingsAccessor"
 	],
 	"injectors": {

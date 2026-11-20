@@ -103,12 +103,7 @@ public final class ExtremoCommands {
 
 	private static int forceReset(CommandSourceStack source) {
 		MinecraftServer server = source.getServer();
-		if (!server.isDedicatedServer()) {
-			source.sendFailure(Component.literal("El reinicio del mundo solo funciona en un servidor dedicado."));
-			return 0;
-		}
-
-		if (!WorldResetter.startCountdown(server, "Reinicio forzado por " + source.getTextName())) {
+		if (!WorldResetter.startCountdown(server)) {
 			source.sendFailure(Component.literal("Ya hay un reinicio en marcha."));
 			return 0;
 		}

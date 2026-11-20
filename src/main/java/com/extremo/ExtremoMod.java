@@ -49,7 +49,7 @@ public final class ExtremoMod implements ModInitializer {
 			data.numeroMundo, data.seedActual, data.participantes.size(), data.totalMuertes);
 
 		if (data.reinicioPendiente) {
-			if (server.isDedicatedServer() && ExtremoConfig.get().reinicioActivado) {
+			if (ExtremoConfig.get().reinicioActivado) {
 				LOGGER.info("[Extremo] El servidor se apago en mitad de un reinicio: se generara el mundo nuevo ahora.");
 				WorldResetter.resumePendingReset();
 			} else {
@@ -61,11 +61,6 @@ public final class ExtremoMod implements ModInitializer {
 
 	private static void onPlayerJoin(ServerPlayer player) {
 		MinecraftServer server = player.level().getServer();
-		if (WorldResetter.isClosedForJoining()) {
-			player.connection.disconnect(WorldResetter.joinBlockedMessage());
-			return;
-		}
-
 		ResourcePack.sendTo(player);
 		ExtremoData data = ExtremoData.get();
 		if (data.registerParticipant(player.getUUID(), player.getGameProfile().name())) {
