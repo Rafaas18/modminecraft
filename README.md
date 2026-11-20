@@ -2,7 +2,7 @@
 
 Mod para **Minecraft 26.3 (Fabric)** inspirado en la serie *Minecraft Extremo* de Pereira7, Agustin51 y Auronplay:
 
-- **Si un jugador muere, el mundo entero se reinicia.** Todos son expulsados unos segundos y, al volver a entrar, aparecen en un mundo nuevo: inventarios, logros, Nether y End también se reinician.
+- **Si un jugador muere, el mundo entero se reinicia.** Nadie es expulsado: todos aparecen directamente en un mundo nuevo, con el inventario, los logros, el Nether y el End también reiniciados.
 - **La seed nunca se repite.** Cada mundo usa una seed aleatoria nueva que no se ha usado antes. Las seeds usadas se guardan.
 - **Panel a la derecha con las muertes de cada participante**, el número de mundo y el total de muertes. Se mantiene entre reinicios.
 - **El servidor no se apaga.** El mundo se regenera "en caliente", así que funciona en hostings donde no puedes reiniciar el servidor a mano.
@@ -11,10 +11,9 @@ Mod para **Minecraft 26.3 (Fabric)** inspirado en la serie *Minecraft Extremo* d
 ## Qué pasa cuando alguien muere
 
 1. **Suena el audio de muerte** a todos los jugadores, sale en pantalla **"☠ NOMBRE ☠ — ha muerto"** y se suma 1 a sus muertes en el panel.
-2. Empieza una cuenta atrás (16 segundos por defecto, lo que dura el audio).
-3. Se expulsa a todos con el mensaje *"Generando el mundo #N con una seed nueva..."*.
-4. El servidor borra el mundo y crea uno nuevo con otra seed. Tarda solo unos segundos.
-5. Vuelve a entrar: estás en un mundo nuevo, con el inventario vacío y el panel actualizado.
+2. A los 3 segundos (configurable) el servidor borra el mundo y crea uno nuevo con otra seed. Tarda un par de segundos.
+3. Todos (vivos y muertos) **aparecen directamente en el spawn del mundo nuevo**, sin desconectarse, con el inventario, el ender chest, la XP, la cama y los logros a cero. Sale en pantalla **"MUNDO #N"**.
+4. El audio sigue sonando durante el cambio de mundo y el panel se actualiza.
 
 ## Instalación en el servidor (hosting o tu PC)
 
@@ -30,7 +29,7 @@ Mod para **Minecraft 26.3 (Fabric)** inspirado en la serie *Minecraft Extremo* d
 
 Para un servidor en tu propio PC, descarga el instalador de servidor desde <https://fabricmc.net/use/server/> (Minecraft 26.3), arráncalo una vez, acepta el `eula.txt` y pon los dos `.jar` en `mods/`.
 
-**Importante:** el reinicio del mundo solo funciona en un **servidor dedicado** (hosting o servidor Fabric). En un mundo de un jugador abierto a LAN, las muertes se cuentan pero el mundo no se reinicia.
+El mod también funciona en un **mundo de un jugador** (o abierto a LAN), así que puedes probarlo en CurseForge sin servidor: pon el mod y Fabric API en la carpeta `mods` de tu perfil.
 
 ## Audio de muerte (paquete de recursos)
 
@@ -49,7 +48,7 @@ El audio que suena al morir va en un **paquete de recursos que el servidor enví
 | `/extremo reiniciar` | OP | Fuerza un reinicio del mundo (con cuenta atrás) |
 | `/extremo cancelar` | OP | Cancela la cuenta atrás de un reinicio |
 | `/extremo desactivar` / `activar` | OP | Desactiva o activa el reinicio al morir (las muertes se siguen contando) |
-| `/extremo cuentaatras <segundos>` | OP | Cambia los segundos de cuenta atrás (de 0 a 300) |
+| `/extremo cuentaatras <segundos>` | OP | Segundos entre la muerte y el cambio de mundo (de 0 a 300; 0 = instantáneo) |
 | `/extremo muertes <jugador> <n>` | OP | Corrige las muertes de un jugador |
 | `/extremo borrarestadisticas` | OP | Pone todas las muertes a 0 y el contador de mundos a #1 |
 
@@ -62,7 +61,7 @@ Se crea sola en `config/extremo/config.json`. En `sonidoMuerte` también puedes 
 ```json
 {
   "reinicioActivado": true,
-  "segundosCuentaAtras": 16,
+  "segundosCuentaAtras": 3,
   "sonidoMuerte": "extremo:muerte",
   "volumenSonidoMuerte": 1.0,
   "enviarPaqueteRecursos": true,
@@ -82,8 +81,8 @@ Las muertes, el número de mundo y las seeds usadas se guardan en `config/extrem
 | Se reinicia | Se mantiene |
 |---|---|
 | Overworld, Nether y End (seed nueva) | Muertes de cada jugador y número de mundo |
-| Inventario, vida, XP, ender chest, cama/spawn de cada jugador | Reglas del juego (`/gamerule`), whitelist, OPs, baneos |
-| Logros, estadísticas, dragón del End, hora y clima | `server.properties` y la configuración del mod |
+| Inventario, vida, XP, efectos, ender chest, cama/spawn, recetas y logros de cada jugador | Reglas del juego (`/gamerule`), whitelist, OPs, baneos |
+| Dragón del End, hora, clima y modo de juego (vuelve al del servidor) | `server.properties`, la configuración del mod y las estadísticas |
 
 ## Compilar el mod (solo si quieres modificarlo)
 

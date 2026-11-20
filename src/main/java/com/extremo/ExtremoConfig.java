@@ -16,16 +16,19 @@ import net.fabricmc.loader.api.FabricLoader;
  */
 public final class ExtremoConfig {
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
+	private static final int CURRENT_VERSION = 2;
 	public static final String DEFAULT_PACK_URL =
 		"https://raw.githubusercontent.com/Rafaas18/modminecraft/main/descargas/extremo-recursos.zip";
 
 	/** Si es false, las muertes se cuentan pero el mundo NO se reinicia. */
 	public boolean reinicioActivado = true;
+	/** Version del formato de la configuracion (para actualizar valores viejos automaticamente). */
+	public int versionConfig = 0;
 	/**
-	 * Segundos que pasan desde la muerte hasta que se reinicia el mundo. Por defecto 16 para que
-	 * el audio de muerte (15,5 s) se escuche entero antes de expulsar a todos.
+	 * Segundos que pasan desde la muerte hasta que se cambia de mundo. Nadie es expulsado y el
+	 * audio de muerte sigue sonando durante el cambio. 0 = instantaneo.
 	 */
-	public int segundosCuentaAtras = 16;
+	public int segundosCuentaAtras = 3;
 	/** Sonido que suena a todos cuando alguien muere ("extremo:muerte" = el audio personalizado). */
 	public String sonidoMuerte = "extremo:muerte";
 	/** Volumen del sonido de muerte (0.0 - 1.0). */
@@ -74,6 +77,13 @@ public final class ExtremoConfig {
 		}
 
 		instance = loaded != null ? loaded : new ExtremoConfig();
+		if (instance.versionConfig < CURRENT_VERSION) {
+			// Versiones anteriores expulsaban a todos y necesitaban una cuenta atras larga para que se
+			// oyera el audio. Ahora nadie es expulsado, asi que se pasa al nuevo valor por defecto.
+			instance.segundosCuentaAtras = 3;
+			instance.versionConfig = CURRENT_VERSION;
+		}
+
 		instance.sanitize();
 		save();
 	}

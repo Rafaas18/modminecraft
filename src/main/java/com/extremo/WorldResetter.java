@@ -13,6 +13,7 @@ import java.util.OptionalLong;
 import java.util.concurrent.locks.LockSupport;
 
 import com.extremo.mixin.MinecraftServerAccessor;
+import com.extremo.mixin.ServerGamePacketListenerImplAccessor;
 import com.extremo.mixin.WorldGenSettingsAccessor;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLevelEvents;
 import net.minecraft.ChatFormatting;
@@ -31,26 +32,27 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
 import net.minecraft.world.level.storage.LevelResource;
 
 /**
  * Se encarga de la cuenta atras y de regenerar el mundo con una seed nueva SIN apagar el
- * servidor (necesario en hostings, donde no se puede reiniciar el proceso a mano).
+ * servidor y SIN expulsar a nadie.
  *
- * Proceso:
- * 1. Cuenta atras con titulos y sonidos.
- * 2. Se expulsa a todos los jugadores con un mensaje.
- * 3. Cuando el servidor esta vacio: se cierran las dimensiones, se borran sus archivos y los
- *    datos de los jugadores, se cambia la seed y se vuelven a crear las dimensiones.
- * 4. Los jugadores vuelven a entrar y aparecen en un mundo totalmente nuevo.
+ * Proceso (todo en un mismo tick del servidor):
+ * 1. Se saca a los jugadores conectados del mundo viejo (siguen conectados).
+ * 2. Se cierran las dimensiones, se borran sus archivos y los datos de los jugadores.
+ * 3. Se cambia la seed y se vuelven a crear las dimensiones.
+ * 4. Cada jugador "reaparece" (como al pulsar Reaparecer) en el spawn del mundo nuevo, con el
+ *    inventario, la XP, el ender chest y los logros a cero.
  */
 public final class WorldResetter {
 	private enum Phase {
 		IDLE,
-		COUNTDOWN,
-		KICKING
+		COUNTDOWN
 	}
 
 	private static final int TICKS_PER_SECOND = 20;
@@ -59,8 +61,6 @@ public final class WorldResetter {
 
 	private static Phase phase = Phase.IDLE;
 	private static int ticksLeft;
-	private static int kickTicks;
-	private static String reason = "";
 	private static boolean regenerating;
 
 	private WorldResetter() {
@@ -70,11 +70,6 @@ public final class WorldResetter {
 		return regenerating;
 	}
 
-	/** true mientras se esta expulsando a la gente o regenerando: nadie puede entrar. */
-	public static boolean isClosedForJoining() {
-		return phase == Phase.KICKING || regenerating;
-	}
-
 	public static boolean isCountingDown() {
 		return phase == Phase.COUNTDOWN;
 	}
@@ -82,8 +77,6 @@ public final class WorldResetter {
 	public static void resetState() {
 		phase = Phase.IDLE;
 		ticksLeft = 0;
-		kickTicks = 0;
-		reason = "";
 		regenerating = false;
 	}
 
@@ -109,31 +102,25 @@ public final class WorldResetter {
 			return;
 		}
 
-		if (!server.isDedicatedServer()) {
-			server.getPlayerList().broadcastSystemMessage(
-				prefix().append(Component.literal("El reinicio del mundo solo funciona en un servidor dedicado. La muerte se ha contado igualmente.")
-					.withStyle(ChatFormatting.YELLOW)), false);
-			return;
-		}
-
-		startCountdown(server, name + " ha muerto");
+		startCountdown(server);
 		Component title = Component.literal("☠ " + name + " ☠").withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD);
 		Component subtitle = Component.literal("ha muerto - el mundo se va a reiniciar").withStyle(ChatFormatting.GRAY);
 		broadcastTitle(server, title, subtitle);
 		server.getPlayerList().broadcastSystemMessage(
 			prefix().append(Component.literal(name).withStyle(ChatFormatting.RED, ChatFormatting.BOLD))
 				.append(Component.literal(" ha muerto (" + deaths + (deaths == 1 ? " muerte" : " muertes") + "). ").withStyle(ChatFormatting.GRAY))
-				.append(Component.literal("El mundo se reiniciará en " + ExtremoConfig.get().segundosCuentaAtras + " segundos.").withStyle(ChatFormatting.YELLOW)),
+				.append(Component.literal(ExtremoConfig.get().segundosCuentaAtras > 0
+					? "El mundo se reiniciará en " + ExtremoConfig.get().segundosCuentaAtras + " segundos."
+					: "¡Mundo nuevo!").withStyle(ChatFormatting.YELLOW)),
 			false);
 	}
 
 	/** Empieza la cuenta atras. Devuelve false si ya habia un reinicio en marcha. */
-	public static boolean startCountdown(MinecraftServer server, String why) {
+	public static boolean startCountdown(MinecraftServer server) {
 		if (phase != Phase.IDLE) {
 			return false;
 		}
 
-		reason = why;
 		ticksLeft = ExtremoConfig.get().segundosCuentaAtras * TICKS_PER_SECOND;
 		phase = Phase.COUNTDOWN;
 		ExtremoData.get().reinicioPendiente = true;
@@ -141,7 +128,7 @@ public final class WorldResetter {
 		return true;
 	}
 
-	/** Cancela la cuenta atras (solo mientras no se haya empezado a expulsar a la gente). */
+	/** Cancela la cuenta atras. */
 	public static boolean cancel(MinecraftServer server) {
 		if (phase != Phase.COUNTDOWN) {
 			return false;
@@ -156,9 +143,8 @@ public final class WorldResetter {
 
 	/** Usado al arrancar el servidor si se apago en mitad de un reinicio. */
 	public static void resumePendingReset() {
-		reason = "Reinicio pendiente";
-		phase = Phase.KICKING;
-		kickTicks = 0;
+		phase = Phase.COUNTDOWN;
+		ticksLeft = 0;
 	}
 
 	public static void tick(MinecraftServer server) {
@@ -166,7 +152,6 @@ public final class WorldResetter {
 			case IDLE -> {
 			}
 			case COUNTDOWN -> tickCountdown(server);
-			case KICKING -> tickKicking(server);
 		}
 	}
 
@@ -184,55 +169,16 @@ public final class WorldResetter {
 		}
 
 		if (ticksLeft <= 0) {
-			phase = Phase.KICKING;
-			kickTicks = 0;
-			kickEveryone(server);
+			regenerate(server);
 			return;
 		}
 
 		ticksLeft--;
 	}
 
-	private static void tickKicking(MinecraftServer server) {
-		if (server.getPlayerList().getPlayers().isEmpty()) {
-			regenerate(server);
-			return;
-		}
-
-		kickTicks++;
-		if (kickTicks % (5 * TICKS_PER_SECOND) == 0) {
-			ExtremoMod.LOGGER.warn("[Extremo] Todavia quedan jugadores conectados, volviendo a expulsarlos...");
-			kickEveryone(server);
-		}
-	}
-
-	private static void kickEveryone(MinecraftServer server) {
-		Component message = kickMessage();
-		for (ServerPlayer player : new ArrayList<>(server.getPlayerList().getPlayers())) {
-			player.connection.disconnect(message);
-		}
-	}
-
-	private static Component kickMessage() {
-		ExtremoData data = ExtremoData.get();
-		return Component.empty()
-			.append(Component.literal("☠ MINECRAFT EXTREMO ☠").withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD))
-			.append(Component.literal("\n\n"))
-			.append(Component.literal(reason).withStyle(ChatFormatting.RED))
-			.append(Component.literal("\n\nGenerando el mundo #" + (data.numeroMundo + 1) + " con una seed nueva...").withStyle(ChatFormatting.GRAY))
-			.append(Component.literal("\n\nVuelve a entrar en unos segundos.").withStyle(ChatFormatting.YELLOW));
-	}
-
-	public static Component joinBlockedMessage() {
-		return Component.empty()
-			.append(Component.literal("☠ MINECRAFT EXTREMO ☠").withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD))
-			.append(Component.literal("\n\nSe está generando un mundo nuevo.").withStyle(ChatFormatting.GRAY))
-			.append(Component.literal("\nVuelve a entrar en unos segundos.").withStyle(ChatFormatting.YELLOW));
-	}
-
 	/**
 	 * Regenera todas las dimensiones con una seed nueva. Se ejecuta en el hilo del servidor al
-	 * final de un tick y con el servidor vacio.
+	 * final de un tick (fuera del bucle que recorre las dimensiones).
 	 */
 	private static void regenerate(MinecraftServer server) {
 		ExtremoData data = ExtremoData.get();
@@ -242,8 +188,14 @@ public final class WorldResetter {
 
 		MinecraftServerAccessor accessor = (MinecraftServerAccessor) server;
 		Map<ResourceKey<Level>, ServerLevel> levels = accessor.extremo$getLevels();
+		List<ServerPlayer> online = new ArrayList<>(server.getPlayerList().getPlayers());
 		regenerating = true;
 		try {
+			// 0. Sacar a los jugadores del mundo viejo sin desconectarlos.
+			for (ServerPlayer player : online) {
+				detachFromOldWorld(player);
+			}
+
 			// 1. Terminar el trabajo pendiente de chunks (igual que hace vanilla al apagar).
 			drainChunkWork(levels);
 
@@ -292,9 +244,55 @@ public final class WorldResetter {
 		data.reinicioPendiente = false;
 		ExtremoData.save();
 		resetState();
+
+		// 7. Hacer reaparecer a todos en el mundo nuevo.
+		for (ServerPlayer oldPlayer : online) {
+			respawnInNewWorld(server, oldPlayer);
+		}
+
 		DeathPanel.refresh(server);
+		broadcastTitle(server,
+			Component.literal("MUNDO #" + data.numeroMundo).withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD),
+			Component.literal("Seed nueva. ¡Que nadie muera!").withStyle(ChatFormatting.GRAY));
 		server.saveEverything(true, false, true);
 		ExtremoMod.LOGGER.info("[Extremo] Mundo #{} listo en {} ms (seed {}).", data.numeroMundo, System.currentTimeMillis() - startTime, newSeed);
+	}
+
+	/** Deja al jugador "en el aire" (conectado pero fuera de cualquier dimension) y a cero. */
+	private static void detachFromOldWorld(ServerPlayer player) {
+		player.closeContainer();
+		if (player.isSleeping()) {
+			player.stopSleepInBed(true, false);
+		}
+
+		player.stopRiding();
+		player.ejectPassengers();
+		// Se vacia todo en el jugador viejo: el nuevo copia de el el ender chest (y el inventario si
+		// la regla keepInventory esta activada), asi que tiene que estar vacio.
+		player.getInventory().clearContent();
+		player.getEnderChestInventory().clearContent();
+		player.experienceLevel = 0;
+		player.experienceProgress = 0.0F;
+		player.totalExperience = 0;
+		player.removeAllEffects();
+		player.setRespawnPosition(null, false);
+		player.level().removePlayerImmediately(player, Entity.RemovalReason.CHANGED_DIMENSION);
+	}
+
+	/** Igual que pulsar "Reaparecer", pero en el spawn del mundo nuevo. */
+	private static void respawnInNewWorld(MinecraftServer server, ServerPlayer oldPlayer) {
+		ServerPlayer player = server.getPlayerList().respawn(oldPlayer, false, Entity.RemovalReason.CHANGED_DIMENSION);
+		player.connection.player = player;
+		player.connection.resetPosition();
+		((ServerGamePacketListenerImplAccessor) player.connection).extremo$restartClientLoadTimerAfterRespawn();
+		GameType defaultMode = server.getDefaultGameType();
+		if (player.gameMode() != defaultMode) {
+			player.setGameMode(defaultMode);
+		}
+
+		String name = player.getGameProfile().name();
+		runSilentCommand(server, "advancement revoke " + name + " everything");
+		runSilentCommand(server, "recipe take " + name + " *");
 	}
 
 	private static void drainChunkWork(Map<ResourceKey<Level>, ServerLevel> levels) {
