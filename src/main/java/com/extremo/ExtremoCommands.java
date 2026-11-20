@@ -68,6 +68,8 @@ public final class ExtremoCommands {
 			.append(Component.literal("━━━━ ☠ MINECRAFT EXTREMO ☠ ━━━━").withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD))
 			.append(line("Mundo actual", "#" + data.numeroMundo))
 			.append(line("Muertes totales", String.valueOf(data.totalMuertes)))
+			.append(line("Tiempo de este mundo", DeathPanel.formatTicks(data.ticksMundo)))
+			.append(line("Récord", data.recordTicks > 0 ? DeathPanel.formatTicks(data.recordTicks) : "-"))
 			.append(line("Reinicio al morir", config.reinicioActivado ? "activado" : "DESACTIVADO"))
 			.append(line("Cuenta atrás", config.segundosCuentaAtras + " s"));
 		if (!data.ultimaMuerte.isEmpty()) {
@@ -165,6 +167,7 @@ public final class ExtremoCommands {
 		data.totalMuertes = 0;
 		data.numeroMundo = 1;
 		data.ultimaMuerte = "";
+		data.recordTicks = 0L;
 		ExtremoData.save();
 		DeathPanel.refresh(source.getServer());
 		source.sendSuccess(() -> WorldResetter.prefix()

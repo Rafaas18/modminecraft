@@ -6,6 +6,7 @@ import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
@@ -24,7 +25,8 @@ public final class ExtremoMod implements ModInitializer {
 			ExtremoData.save();
 			WorldResetter.resetState();
 		});
-		ServerTickEvents.END_SERVER_TICK.register(WorldResetter::tick);
+		ServerTickEvents.END_SERVER_TICK.register(ExtremoMod::onEndTick);
+		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> DeathPanel.markDirty());
 
 		ServerLivingEntityEvents.AFTER_DEATH.register((entity, damageSource) -> {
 			if (entity instanceof ServerPlayer player) {
@@ -59,14 +61,31 @@ public final class ExtremoMod implements ModInitializer {
 		}
 	}
 
+	private static void onEndTick(MinecraftServer server) {
+		WorldResetter.tick(server);
+		boolean newSecond = false;
+		if (!server.getPlayerList().getPlayers().isEmpty() && !WorldResetter.isCountingDown()) {
+			ExtremoData data = ExtremoData.get();
+			data.ticksMundo++;
+			newSecond = data.ticksMundo % 20 == 0;
+			if (data.ticksMundo % 1200 == 0) {
+				ExtremoData.save();
+			}
+		}
+
+		DeathPanel.tick(server, newSecond);
+	}
+
 	private static void onPlayerJoin(ServerPlayer player) {
 		MinecraftServer server = player.level().getServer();
 		ResourcePack.sendTo(player);
 		ExtremoData data = ExtremoData.get();
 		if (data.registerParticipant(player.getUUID(), player.getGameProfile().name())) {
 			ExtremoData.save();
-			DeathPanel.refresh(server);
 		}
+
+		// Siempre se actualiza para que salga como conectado (punto verde).
+		DeathPanel.markDirty();
 
 		player.sendSystemMessage(WorldResetter.prefix()
 			.append(Component.literal("Mundo #" + data.numeroMundo).withStyle(ChatFormatting.GOLD))

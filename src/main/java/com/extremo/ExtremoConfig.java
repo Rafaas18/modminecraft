@@ -50,6 +50,13 @@ public final class ExtremoConfig {
 	public boolean mostrarNumeroMundo = true;
 	/** Muestra la linea "Total" en el panel. */
 	public boolean mostrarTotalMuertes = true;
+	/** Muestra cuanto tiempo lleva vivo el mundo actual. */
+	public boolean mostrarTiempo = true;
+	/** Muestra el record (lo maximo que ha durado un mundo). */
+	public boolean mostrarRecord = true;
+	/** Colores del degradado del titulo del panel (formato #RRGGBB). */
+	public String colorTitulo1 = "#FF3B3B";
+	public String colorTitulo2 = "#FFB020";
 
 	private static ExtremoConfig instance = new ExtremoConfig();
 

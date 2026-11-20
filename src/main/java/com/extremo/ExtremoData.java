@@ -32,6 +32,10 @@ public final class ExtremoData {
 	public boolean reinicioPendiente = false;
 	public String ultimaMuerte = "";
 	public long seedActual = 0L;
+	/** Ticks que lleva vivo el mundo actual (solo cuentan mientras hay alguien conectado). */
+	public long ticksMundo = 0L;
+	/** Lo maximo que ha durado un mundo, en ticks. */
+	public long recordTicks = 0L;
 	public List<Long> seedsUsadas = new ArrayList<>();
 	/** UUID del jugador -> participante. */
 	public Map<String, Participante> participantes = new LinkedHashMap<>();
@@ -93,6 +97,8 @@ public final class ExtremoData {
 		}
 
 		this.numeroMundo = Math.max(1, this.numeroMundo);
+		this.ticksMundo = Math.max(0L, this.ticksMundo);
+		this.recordTicks = Math.max(0L, this.recordTicks);
 		this.totalMuertes = Math.max(0, this.totalMuertes);
 	}
 
@@ -126,9 +132,24 @@ public final class ExtremoData {
 	}
 
 	public List<Participante> ranking() {
-		List<Participante> list = new ArrayList<>(this.participantes.values());
-		list.sort(Comparator.<Participante>comparingInt(p -> p.muertes).reversed().thenComparing(p -> p.nombre, String.CASE_INSENSITIVE_ORDER));
+		return this.rankingEntries().stream().map(Map.Entry::getValue).toList();
+	}
+
+	/** Participantes (UUID -> datos) ordenados de mas a menos muertes. */
+	public List<Map.Entry<String, Participante>> rankingEntries() {
+		List<Map.Entry<String, Participante>> list = new ArrayList<>(this.participantes.entrySet());
+		list.sort(Comparator.<Map.Entry<String, Participante>>comparingInt(e -> e.getValue().muertes).reversed()
+			.thenComparing(e -> e.getValue().nombre, String.CASE_INSENSITIVE_ORDER));
 		return list;
+	}
+
+	/** Se llama al pasar a un mundo nuevo: guarda el record y pone el tiempo a cero. */
+	public void finishWorld() {
+		if (this.ticksMundo > this.recordTicks) {
+			this.recordTicks = this.ticksMundo;
+		}
+
+		this.ticksMundo = 0L;
 	}
 
 	public Participante findByName(String name) {

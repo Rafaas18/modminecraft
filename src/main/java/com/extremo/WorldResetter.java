@@ -239,6 +239,7 @@ public final class WorldResetter {
 
 		runSilentCommand(server, "time set 0");
 
+		data.finishWorld();
 		data.numeroMundo++;
 		data.rememberSeed(newSeed);
 		data.reinicioPendiente = false;
