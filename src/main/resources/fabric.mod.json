@@ -1,0 +1,21 @@
+{
+	"schemaVersion": 1,
+	"id": "extremo",
+	"version": "${version}",
+	"name": "Minecraft Extremo",
+	"description": "Si un jugador muere, el mundo entero se reinicia con una seed nueva. Panel lateral con las muertes de cada participante.",
+	"authors": ["rafaas18"],
+	"license": "MIT",
+	"icon": "assets/extremo/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": ["com.extremo.ExtremoMod"]
+	},
+	"mixins": ["extremo.mixins.json"],
+	"depends": {
+		"fabricloader": ">=0.20.1",
+		"minecraft": "~26.3",
+		"java": ">=25",
+		"fabric-api": "*"
+	}
+}
