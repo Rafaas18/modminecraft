@@ -41,7 +41,7 @@ public final class DeathPanel {
 	private static final TextColor DEATH = TextColor.fromRgb(0xFF4D4D);
 	private static final TextColor NO_DEATHS = TextColor.fromRgb(0x5E5E66);
 	private static final TextColor ONLINE = TextColor.fromRgb(0x4CE06A);
-	private static final TextColor OFFLINE = TextColor.fromRgb(0x5E5E66);
+	private static final TextColor OFFLINE = TextColor.fromRgb(0x7A7A85);
 	private static final TextColor HEADER = TextColor.fromRgb(0xFF6B4A);
 
 	private static boolean dirty;
@@ -93,11 +93,11 @@ public final class DeathPanel {
 		}
 
 		if (config.mostrarTiempo) {
-			top.add(new Line(TIME_HOLDER, label("⌛ ", "Tiempo", VALUE), text(formatTicks(data.ticksMundo), VALUE, false), false));
+			top.add(new Line(TIME_HOLDER, label("⌛ ", "Tiempo", VALUE), text(formatMillis(data.tiempoMundoMs), VALUE, false), false));
 		}
 
-		if (config.mostrarRecord && data.recordTicks > 0) {
-			top.add(new Line("extremo.record", label("★ ", "Récord", GOLD), text(formatTicks(data.recordTicks), GOLD, false), true));
+		if (config.mostrarRecord && data.recordMs >= 1000) {
+			top.add(new Line("extremo.record", label("★ ", "Récord", GOLD), text(formatMillis(data.recordMs), GOLD, false), true));
 		}
 
 		Set<String> online = new HashSet<>();
@@ -188,7 +188,7 @@ public final class DeathPanel {
 		}
 
 		scoreboard.getOrCreatePlayerScore(holder, objective)
-			.numberFormatOverride(numberFormat(text(formatTicks(ExtremoData.get().ticksMundo), VALUE, false)));
+			.numberFormatOverride(numberFormat(text(formatMillis(ExtremoData.get().tiempoMundoMs), VALUE, false)));
 	}
 
 	private static NumberFormat numberFormat(Component right) {
@@ -243,9 +243,9 @@ public final class DeathPanel {
 		return Integer.parseInt(clean, 16);
 	}
 
-	/** 1234 ticks -> "1:01", 80000 ticks -> "1:06:40". */
-	static String formatTicks(long ticks) {
-		long totalSeconds = Math.max(0, ticks / 20);
+	/** 61000 ms -> "1:01", 4000000 ms -> "1:06:40". */
+	static String formatMillis(long millis) {
+		long totalSeconds = Math.max(0, millis / 1000);
 		long hours = totalSeconds / 3600;
 		long minutes = (totalSeconds % 3600) / 60;
 		long seconds = totalSeconds % 60;

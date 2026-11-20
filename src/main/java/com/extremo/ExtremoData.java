@@ -32,10 +32,10 @@ public final class ExtremoData {
 	public boolean reinicioPendiente = false;
 	public String ultimaMuerte = "";
 	public long seedActual = 0L;
-	/** Ticks que lleva vivo el mundo actual (solo cuentan mientras hay alguien conectado). */
-	public long ticksMundo = 0L;
-	/** Lo maximo que ha durado un mundo, en ticks. */
-	public long recordTicks = 0L;
+	/** Milisegundos reales que lleva vivo el mundo actual (solo cuenta con alguien conectado). */
+	public long tiempoMundoMs = 0L;
+	/** Lo maximo que ha durado un mundo, en milisegundos. */
+	public long recordMs = 0L;
 	public List<Long> seedsUsadas = new ArrayList<>();
 	/** UUID del jugador -> participante. */
 	public Map<String, Participante> participantes = new LinkedHashMap<>();
@@ -97,8 +97,8 @@ public final class ExtremoData {
 		}
 
 		this.numeroMundo = Math.max(1, this.numeroMundo);
-		this.ticksMundo = Math.max(0L, this.ticksMundo);
-		this.recordTicks = Math.max(0L, this.recordTicks);
+		this.tiempoMundoMs = Math.max(0L, this.tiempoMundoMs);
+		this.recordMs = Math.max(0L, this.recordMs);
 		this.totalMuertes = Math.max(0, this.totalMuertes);
 	}
 
@@ -145,11 +145,11 @@ public final class ExtremoData {
 
 	/** Se llama al pasar a un mundo nuevo: guarda el record y pone el tiempo a cero. */
 	public void finishWorld() {
-		if (this.ticksMundo > this.recordTicks) {
-			this.recordTicks = this.ticksMundo;
+		if (this.tiempoMundoMs > this.recordMs) {
+			this.recordMs = this.tiempoMundoMs;
 		}
 
-		this.ticksMundo = 0L;
+		this.tiempoMundoMs = 0L;
 	}
 
 	public Participante findByName(String name) {

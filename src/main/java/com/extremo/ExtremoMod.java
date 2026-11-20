@@ -61,16 +61,29 @@ public final class ExtremoMod implements ModInitializer {
 		}
 	}
 
+	/** Tiempo maximo que se suma por tick: los parones (p. ej. al generar un mundo) no cuentan. */
+	private static final long MAX_MS_PER_TICK = 250L;
+	private static long lastTickNanos;
+	private static long lastShownSecond = -1L;
+	private static long lastSaveSecond;
+
 	private static void onEndTick(MinecraftServer server) {
 		WorldResetter.tick(server);
-		boolean newSecond = false;
+		long now = System.nanoTime();
+		long elapsedMs = lastTickNanos == 0L ? 0L : Math.min(MAX_MS_PER_TICK, Math.max(0L, (now - lastTickNanos) / 1_000_000L));
+		lastTickNanos = now;
+
+		ExtremoData data = ExtremoData.get();
 		if (!server.getPlayerList().getPlayers().isEmpty() && !WorldResetter.isCountingDown()) {
-			ExtremoData data = ExtremoData.get();
-			data.ticksMundo++;
-			newSecond = data.ticksMundo % 20 == 0;
-			if (data.ticksMundo % 1200 == 0) {
-				ExtremoData.save();
-			}
+			data.tiempoMundoMs += elapsedMs;
+		}
+
+		long second = data.tiempoMundoMs / 1000L;
+		boolean newSecond = second != lastShownSecond;
+		lastShownSecond = second;
+		if (second - lastSaveSecond >= 60L || second < lastSaveSecond) {
+			lastSaveSecond = second;
+			ExtremoData.save();
 		}
 
 		DeathPanel.tick(server, newSecond);
