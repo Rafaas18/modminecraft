@@ -10,8 +10,8 @@ Mod para **Minecraft 26.3 (Fabric)** inspirado en la serie *Minecraft Extremo* d
 
 ## Qué pasa cuando alguien muere
 
-1. Sale en pantalla **"☠ NOMBRE HA MUERTO ☠"** con sonido de Wither y se suma 1 a sus muertes en el panel.
-2. Empieza una cuenta atrás (10 segundos por defecto).
+1. **Suena el audio de muerte** a todos los jugadores, sale en pantalla **"☠ NOMBRE ☠ — ha muerto"** y se suma 1 a sus muertes en el panel.
+2. Empieza una cuenta atrás (22 segundos por defecto, lo que dura el audio).
 3. Se expulsa a todos con el mensaje *"Generando el mundo #N con una seed nueva..."*.
 4. El servidor borra el mundo y crea uno nuevo con otra seed. Tarda solo unos segundos.
 5. Vuelve a entrar: estás en un mundo nuevo, con el inventario vacío y el panel actualizado.
@@ -32,6 +32,15 @@ Para un servidor en tu propio PC, descarga el instalador de servidor desde <http
 
 **Importante:** el reinicio del mundo solo funciona en un **servidor dedicado** (hosting o servidor Fabric). En un mundo de un jugador abierto a LAN, las muertes se cuentan pero el mundo no se reinicia.
 
+## Audio de muerte (paquete de recursos)
+
+El audio que suena al morir va en un **paquete de recursos que el servidor envía solo**: al entrar por primera vez, Minecraft pregunta si quieres descargarlo y basta con darle a **"Sí"**. No hay que instalar nada a mano.
+
+- El paquete está en [`descargas/extremo-recursos.zip`](descargas/extremo-recursos.zip) y el mod usa ese enlace de GitHub por defecto.
+- Si alguien rechaza el paquete, juega igual pero no oirá el audio.
+- Para cambiar el audio: sustituye `paquete-recursos/assets/extremo/sounds/muerte.ogg` (formato `.ogg`), ejecuta `./gradlew build copiarDescargas` y sube los cambios.
+- Si alojas el paquete en otro sitio, cambia `urlPaqueteRecursos` en la configuración y pon su SHA-1 en `sha1PaqueteRecursos`.
+
 ## Comandos
 
 | Comando | Quién | Qué hace |
@@ -48,12 +57,18 @@ Para hacerte OP, escribe `op TuNombre` en la consola del servidor.
 
 ## Configuración
 
-Se crea sola en `config/extremo/config.json`:
+Se crea sola en `config/extremo/config.json`. En `sonidoMuerte` también puedes poner un sonido de Minecraft, por ejemplo `minecraft:entity.wither.spawn`.
 
 ```json
 {
   "reinicioActivado": true,
-  "segundosCuentaAtras": 10,
+  "segundosCuentaAtras": 22,
+  "sonidoMuerte": "extremo:muerte",
+  "volumenSonidoMuerte": 1.0,
+  "enviarPaqueteRecursos": true,
+  "urlPaqueteRecursos": "https://raw.githubusercontent.com/Rafaas18/modminecraft/claude/wonderful-clarke-5yyun3/descargas/extremo-recursos.zip",
+  "sha1PaqueteRecursos": "",
+  "paqueteRecursosObligatorio": false,
   "tituloPanel": "☠ MINECRAFT EXTREMO ☠",
   "mostrarNumeroMundo": true,
   "mostrarTotalMuertes": true
