@@ -98,7 +98,7 @@ public final class WorldResetter {
 
 		if (!ExtremoConfig.get().reinicioActivado) {
 			server.getPlayerList().broadcastSystemMessage(
-				prefix().append(Component.literal(name + " ha muerto. El reinicio automatico esta desactivado.").withStyle(ChatFormatting.GRAY)), false);
+				prefix().append(Component.literal(name + " ha muerto. El reinicio automático está desactivado.").withStyle(ChatFormatting.GRAY)), false);
 			return;
 		}
 
@@ -114,14 +114,14 @@ public final class WorldResetter {
 		}
 
 		startCountdown(server, name + " ha muerto");
-		Component title = Component.literal("☠ " + name.toUpperCase() + " HA MUERTO ☠").withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD);
-		Component subtitle = Component.literal("El mundo se va a reiniciar").withStyle(ChatFormatting.GRAY);
+		Component title = Component.literal("☠ " + name + " ☠").withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD);
+		Component subtitle = Component.literal("ha muerto - el mundo se va a reiniciar").withStyle(ChatFormatting.GRAY);
 		broadcastTitle(server, title, subtitle);
 		playSoundToAll(server, SoundEvents.WITHER_SPAWN, 1.0F, 1.0F);
 		server.getPlayerList().broadcastSystemMessage(
 			prefix().append(Component.literal(name).withStyle(ChatFormatting.RED, ChatFormatting.BOLD))
 				.append(Component.literal(" ha muerto (" + deaths + (deaths == 1 ? " muerte" : " muertes") + "). ").withStyle(ChatFormatting.GRAY))
-				.append(Component.literal("El mundo se reiniciara en " + ExtremoConfig.get().segundosCuentaAtras + " segundos.").withStyle(ChatFormatting.YELLOW)),
+				.append(Component.literal("El mundo se reiniciará en " + ExtremoConfig.get().segundosCuentaAtras + " segundos.").withStyle(ChatFormatting.YELLOW)),
 			false);
 	}
 
@@ -173,7 +173,7 @@ public final class WorldResetter {
 			int seconds = ticksLeft / TICKS_PER_SECOND;
 			if (seconds > 0) {
 				server.getPlayerList().broadcastAll(new ClientboundSetActionBarTextPacket(
-					Component.literal("El mundo se reiniciara en ").withStyle(ChatFormatting.RED)
+					Component.literal("El mundo se reiniciará en ").withStyle(ChatFormatting.RED)
 						.append(Component.literal(seconds + "s").withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD))));
 				if (seconds <= 3) {
 					playSoundToAll(server, SoundEvents.NOTE_BLOCK_HAT.value(), 1.0F, 0.6F);
@@ -224,7 +224,7 @@ public final class WorldResetter {
 	public static Component joinBlockedMessage() {
 		return Component.empty()
 			.append(Component.literal("☠ MINECRAFT EXTREMO ☠").withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD))
-			.append(Component.literal("\n\nSe esta generando un mundo nuevo.").withStyle(ChatFormatting.GRAY))
+			.append(Component.literal("\n\nSe está generando un mundo nuevo.").withStyle(ChatFormatting.GRAY))
 			.append(Component.literal("\nVuelve a entrar en unos segundos.").withStyle(ChatFormatting.YELLOW));
 	}
 
