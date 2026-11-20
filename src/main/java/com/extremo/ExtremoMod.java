@@ -40,6 +40,7 @@ public final class ExtremoMod implements ModInitializer {
 		WorldResetter.resetState();
 		ExtremoConfig.load();
 		ExtremoData.load();
+		ResourcePack.init();
 		ExtremoData data = ExtremoData.get();
 		data.rememberSeed(server.getWorldGenSettings().options().seed());
 		ExtremoData.save();
@@ -65,6 +66,7 @@ public final class ExtremoMod implements ModInitializer {
 			return;
 		}
 
+		ResourcePack.sendTo(player);
 		ExtremoData data = ExtremoData.get();
 		if (data.registerParticipant(player.getUUID(), player.getGameProfile().name())) {
 			ExtremoData.save();

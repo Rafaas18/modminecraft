@@ -1,0 +1,10 @@
+{
+	"muerte": {
+		"sounds": [
+			{
+				"name": "extremo:muerte",
+				"stream": true
+			}
+		]
+	}
+}
