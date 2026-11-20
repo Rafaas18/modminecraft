@@ -37,6 +37,7 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
 import net.minecraft.world.level.storage.LevelResource;
+import net.minecraft.world.level.storage.LevelStorageSource;
 
 /**
  * Se encarga de la cuenta atras y de regenerar el mundo con una seed nueva SIN apagar el
@@ -218,6 +219,9 @@ public final class WorldResetter {
 			// 3. Borrar los archivos del mundo y de los jugadores.
 			Path worldRoot = accessor.extremo$getStorageSource().getLevelPath(LevelResource.ROOT).toAbsolutePath().normalize();
 			deleteWorldFiles(worldRoot);
+			// Minecraft solo crea la carpeta de datos de jugadores al arrancar el servidor: si no
+			// se vuelve a crear, el inventario y la posicion no se guardan al salir.
+			recreatePlayerFolders(accessor.extremo$getStorageSource());
 
 			// 4. Nueva seed.
 			WorldGenSettings genSettings = server.getWorldGenSettings();
@@ -333,6 +337,16 @@ public final class WorldResetter {
 				deleteRecursively(target);
 			} catch (IOException e) {
 				ExtremoMod.LOGGER.error("[Extremo] No se pudo borrar {}", target, e);
+			}
+		}
+	}
+
+	private static void recreatePlayerFolders(LevelStorageSource.LevelStorageAccess storage) {
+		for (LevelResource folder : new LevelResource[] {LevelResource.PLAYER_DATA_DIR, LevelResource.PLAYER_ADVANCEMENTS_DIR, LevelResource.PLAYER_STATS_DIR}) {
+			try {
+				Files.createDirectories(storage.getLevelPath(folder));
+			} catch (IOException e) {
+				ExtremoMod.LOGGER.error("[Extremo] No se pudo crear la carpeta {}", folder, e);
 			}
 		}
 	}
