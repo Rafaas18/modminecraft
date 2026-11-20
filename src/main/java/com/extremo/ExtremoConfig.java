@@ -17,7 +17,7 @@ import net.fabricmc.loader.api.FabricLoader;
 public final class ExtremoConfig {
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 	public static final String DEFAULT_PACK_URL =
-		"https://raw.githubusercontent.com/Rafaas18/modminecraft/claude/wonderful-clarke-5yyun3/descargas/extremo-recursos.zip";
+		"https://raw.githubusercontent.com/Rafaas18/modminecraft/main/descargas/extremo-recursos.zip";
 
 	/** Si es false, las muertes se cuentan pero el mundo NO se reinicia. */
 	public boolean reinicioActivado = true;

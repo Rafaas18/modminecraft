@@ -66,7 +66,7 @@ Se crea sola en `config/extremo/config.json`. En `sonidoMuerte` también puedes 
   "sonidoMuerte": "extremo:muerte",
   "volumenSonidoMuerte": 1.0,
   "enviarPaqueteRecursos": true,
-  "urlPaqueteRecursos": "https://raw.githubusercontent.com/Rafaas18/modminecraft/claude/wonderful-clarke-5yyun3/descargas/extremo-recursos.zip",
+  "urlPaqueteRecursos": "https://raw.githubusercontent.com/Rafaas18/modminecraft/main/descargas/extremo-recursos.zip",
   "sha1PaqueteRecursos": "",
   "paqueteRecursosObligatorio": false,
   "tituloPanel": "☠ MINECRAFT EXTREMO ☠",
