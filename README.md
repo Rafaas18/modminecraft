@@ -24,6 +24,8 @@ Mod para **Minecraft 26.3 (Fabric)** inspirado en la serie *Minecraft Extremo* d
    - **Fabric API** para 26.3: <https://modrinth.com/mod/fabric-api/versions?g=26.3>
 3. Arranca el servidor. Listo.
 
+> **Whitelist:** en Minecraft 26.3 la whitelist viene **activada por defecto**. Añade a tus amigos escribiendo en la consola `whitelist add NombreDelAmigo`, o desactívala con `white-list=false` en `server.properties`.
+
 > **Ojo con Aternos:** Aternos solo permite instalar mods de su propio catálogo y no deja subir archivos `.jar` propios. Para este mod necesitas un hosting que te deje subir archivos a la carpeta `mods/` (por FTP o desde su gestor de archivos), o bien un servidor en tu PC.
 
 Para un servidor en tu propio PC, descarga el instalador de servidor desde <https://fabricmc.net/use/server/> (Minecraft 26.3), arráncalo una vez, acepta el `eula.txt` y pon los dos `.jar` en `mods/`.
