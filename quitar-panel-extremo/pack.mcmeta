@@ -1,0 +1,7 @@
+{
+	"pack": {
+		"description": "Quita el panel de Minecraft Extremo de este mundo",
+		"min_format": 121,
+		"max_format": 300
+	}
+}

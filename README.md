@@ -40,6 +40,10 @@ El audio que suena al morir va en un **paquete de recursos que el servidor enví
 - Para cambiar el audio: sustituye `paquete-recursos/assets/extremo/sounds/muerte.ogg` (formato `.ogg`), ejecuta `./gradlew build copiarDescargas` y sube los cambios.
 - Si alojas el paquete en otro sitio, cambia `urlPaqueteRecursos` en la configuración y pon su SHA-1 en `sha1PaqueteRecursos`.
 
+## Quitar el panel de un mundo donde ya no usas el mod
+
+El panel se guarda en el marcador del mundo, así que puede quedarse en un mundo aunque quites el mod. Si ese mundo no permite comandos (por ejemplo, un hardcore), usa el datapack [`descargas/quitar-panel-extremo.zip`](descargas/quitar-panel-extremo.zip): ponlo en la carpeta `datapacks` del mundo y entra. El panel desaparece al cargar. Después puedes borrar el datapack.
+
 ## Comandos
 
 | Comando | Quién | Qué hace |
